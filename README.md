@@ -6,7 +6,7 @@ A modern full-stack MERN application that allows users to create, view, and mana
 
 ## 🌐 Live Demo
 
-🔗 **Frontend:** post-create-web.vercel.app
+🔗 **Frontend:** https://post-create-web.vercel.app/create-post
 🔗 **Backend API:** https://post-create-web.onrender.com
 
 ---
