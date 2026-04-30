@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 const CreatePost = () => {
   const navigate = useNavigate()
+  const [fileName, setFileName] = useState('📷 Choose Image')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -16,6 +17,15 @@ const CreatePost = () => {
     } catch (error) {
       console.log(error)
       alert("Post not created. Please try again.")
+    }
+  }
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setFileName(`📷 ${file.name}`)
+    } else {
+      setFileName('📷 Choose Image')
     }
   }
 
@@ -93,12 +103,13 @@ const CreatePost = () => {
               fontWeight: "500"
             }}
           >
-            📷 Choose Image
+            {fileName}
             <input
               type="file"
               name="image"
               accept="image/*"
               required
+              onChange={handleFileChange}
               style={{ display: "none" }}
             />
           </label>
