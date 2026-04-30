@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 const CreatePost = () => {
   const navigate = useNavigate()
   const [fileName, setFileName] = useState('📷 Choose Image')
@@ -12,7 +14,7 @@ const CreatePost = () => {
     const formData = new FormData(e.target)
 
     try {
-      await axios.post("http://localhost:3000/create-post", formData)
+      await axios.post(`${API_URL}/create-post`, formData)
       navigate('/feed')
     } catch (error) {
       console.log(error)

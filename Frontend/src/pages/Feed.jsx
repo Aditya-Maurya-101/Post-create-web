@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from "axios"
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 const Feed = () => {
   const [posts, setPosts] = useState([
     {
@@ -24,7 +26,7 @@ const Feed = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/post/${id}`)
+      await axios.delete(`${API_URL}/posts/${id}`)
       setPosts(posts.filter((post) => post._id !== id))
     } catch (error) {
       console.log(error)
@@ -32,7 +34,7 @@ const Feed = () => {
   }
 
   useEffect(() => {
-    axios.get("http://localhost:3000/posts").then((res) => {
+    axios.get(`${API_URL}/posts`).then((res) => {
       setPosts(res.data.posts)
     })
   }, [])
