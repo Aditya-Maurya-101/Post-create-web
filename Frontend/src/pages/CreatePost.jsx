@@ -11,7 +11,7 @@ const CreatePost = () => {
     const formData = new FormData(e.target)
 
     try {
-      await axios.post("https://post-web-21mt.onrender.com/create-post", formData)
+      await axios.post("http://localhost:3000/create-post", formData)
 
       navigate('/feed')
     } catch (error) {

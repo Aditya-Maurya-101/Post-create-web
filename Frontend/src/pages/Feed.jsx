@@ -11,7 +11,7 @@ const Feed = () => {
     ])
     const handleDelete = async (id) => {
   try {
-    await axios.delete(`https://post-web-21mt.onrender.com/post/${id}`);
+    await axios.delete(`http://localhost:3000/post/${id}`);
 
     setPosts(posts.filter((post) => post._id !== id));
   } catch (error) {
@@ -20,7 +20,7 @@ const Feed = () => {
 };
 
 useEffect(() => {
-  axios.get("https://post-web-21mt.onrender.com/posts")
+  axios.get("http://localhost:3000/posts")
     .then((res) => {
       console.log(res.data)
         setPosts(res.data.posts)
