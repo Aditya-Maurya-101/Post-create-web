@@ -7,18 +7,38 @@ const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replac
 const CreatePost = () => {
   const navigate = useNavigate()
   const [fileName, setFileName] = useState('📷 Choose Image')
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setUploadProgress(0)
 
     const formData = new FormData(e.target)
 
     try {
-      await axios.post(`${API_URL}/create-post`, formData)
-      navigate('/feed')
+      await axios.post(`${API_URL}/create-post`, formData, {
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          setUploadProgress(percent)
+        }
+      })
+
+      e.target.reset()
+      setFileName('📷 Choose Image')
+      setUploadProgress(100)
+      setShowSuccess(true)
+      setTimeout(() => {
+        setShowSuccess(false)
+        setUploadProgress(0)
+      }, 2000)
     } catch (error) {
       console.log(error)
-      alert("Post not created. Please try again.")
+      alert('Post not created. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -89,7 +109,8 @@ const CreatePost = () => {
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: "22px"
+            gap: "22px",
+            position: "relative"
           }}
         >
           {/* Upload Box */}
@@ -99,8 +120,8 @@ const CreatePost = () => {
               borderRadius: "22px",
               padding: "22px",
               textAlign: "center",
-              cursor: "pointer",
-              color: "#4b5563",
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              color: isSubmitting ? "#9ca3af" : "#4b5563",
               fontSize: "1rem",
               fontWeight: "500"
             }}
@@ -112,6 +133,7 @@ const CreatePost = () => {
               accept="image/*"
               required
               onChange={handleFileChange}
+              disabled={isSubmitting}
               style={{ display: "none" }}
             />
           </label>
@@ -122,6 +144,7 @@ const CreatePost = () => {
             name="caption"
             placeholder="Enter caption..."
             required
+            disabled={isSubmitting}
             style={{
               ...insetNeo,
               border: "none",
@@ -129,32 +152,38 @@ const CreatePost = () => {
               padding: "18px 20px",
               borderRadius: "18px",
               fontSize: "1rem",
-              color: "#374151"
+              color: "#374151",
+              background: isSubmitting ? "#e5e7eb" : "#dde5eb"
             }}
           />
 
           {/* Submit */}
           <button
             type="submit"
+            disabled={isSubmitting}
             style={{
               border: "none",
               padding: "18px",
               borderRadius: "50px",
-              background: "linear-gradient(135deg,#2d8cff,#3c2fff)",
+              background: isSubmitting
+                ? "linear-gradient(135deg,#7da8ff,#8b82ff)"
+                : "linear-gradient(135deg,#2d8cff,#3c2fff)",
               color: "white",
               fontSize: "1.1rem",
               fontWeight: "600",
-              cursor: "pointer",
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              opacity: isSubmitting ? 0.85 : 1,
               boxShadow: "8px 8px 18px rgba(59,130,246,.35)"
             }}
           >
-            Create Post
+            {isSubmitting ? `Uploading ${uploadProgress}%` : 'Create Post'}
           </button>
 
           {/* Feed Button */}
           <button
             type="button"
             onClick={() => navigate('/feed')}
+            disabled={isSubmitting}
             style={{
               ...neo,
               border: "none",
@@ -163,11 +192,50 @@ const CreatePost = () => {
               color: "#4b5563",
               fontSize: "1rem",
               fontWeight: "500",
-              cursor: "pointer"
+              cursor: isSubmitting ? "not-allowed" : "pointer"
             }}
           >
             Go to Feed
           </button>
+
+          {showSuccess && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: 'rgba(255,255,255,0.85)',
+                borderRadius: '28px',
+                zIndex: 10
+              }}
+            >
+              <div
+                style={{
+                  width: '130px',
+                  height: '130px',
+                  borderRadius: '50%',
+                  background: '#ecfdf5',
+                  border: '3px solid #34d399',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0 20px 50px rgba(16,185,129,0.18)'
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '4rem',
+                    color: '#10b981',
+                    lineHeight: 1
+                  }}
+                >
+                  ✓
+                </span>
+              </div>
+            </div>
+          )}
         </form>
 
         {/* Bottom Stats UI */}
@@ -189,7 +257,7 @@ const CreatePost = () => {
             }}
           >
             <span>Upload Progress</span>
-            <span>71%</span>
+            <span>{uploadProgress > 0 ? `${uploadProgress}%` : 'Ready'}</span>
           </div>
 
           <div
@@ -202,7 +270,9 @@ const CreatePost = () => {
           >
             <div
               style={{
-                width: "71%",
+                width: `${uploadProgress}%`,
+                minWidth: uploadProgress > 0 ? `${uploadProgress}%` : '4%',
+                transition: 'width 0.3s ease',
                 height: "100%",
                 borderRadius: "20px",
                 background:
